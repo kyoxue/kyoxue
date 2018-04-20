@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		   							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+						           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+						           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+	<!-- 支持注解驱动 -->					           
+	<context:annotation-config/>	
+	<!-- properties扫描 -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+        <property name="locations">  
+            <list>  
+                <value>classpath*:jdbc.properties</value>
+                <value>classpath*:mail.properties</value>   
+            </list>  
+        </property>  
+    </bean>
+    <!-- spring包的扫描，这里排除controller，单独在spring-mvc配置 -->
+	<context:component-scan base-package="com.ilib.dao,com.ilib.service,com.ilib.listener,com.ilib.other.*">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan> 
+	<!-- 其它配置的spring文件 -->
+	<import resource="classpath:spring/spring-dao.xml"/>
+	<import resource="classpath:spring/spring-activiti.xml"/>
+	<import resource="classpath:spring/spring-mvc.xml"/>
+	<import resource="classpath:spring/spring-jaxrs.xml"/>
+	<import resource="classpath:spring/spring-mail.xml"/>
+	<import resource="classpath:spring/spring-threadpool.xml"/>
+	<import resource="classpath:spring/spring-quartz.xml"/>
+	<import resource="classpath:spring/spring-redis.xml"/>
+	<import resource="classpath:spring/spring-shiro.xml"/>
+	<!-- 类中获取spring环境 -->
+	<bean class="com.ilib.common.SpringContext" lazy-init="false"/> 	           
+</beans>

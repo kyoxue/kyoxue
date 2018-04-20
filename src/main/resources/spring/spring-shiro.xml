@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		   							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+						           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+						           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/login" />
+		<property name="successUrl" value="/index" />
+		<property name="unauthorizedUrl" value="/unauthorized" />
+		<property name="filters">
+			<map>
+				<entry key="authc" value-ref="formAuthenticationFilter"/>
+				<entry key="logout" value-ref="logoutFilter"/>
+			</map>
+		</property>
+		<property name="filterChainDefinitions">
+			<value>
+				# some example chain definitions:
+				<!-- 
+				/xx=anon
+				/xx/*= anon
+				/xx/xx=anon
+				/**=authc 这句必须放最后，过滤有顺序
+				 -->
+				/js/**=anon
+				/css/**=anon
+				/images/**=anon
+				/index.jsp=anon
+				/kaptcha.jpg=anon
+				/logs/**=anon
+                /report/**=anon
+                /upload/**=anon
+				/download/**=anon
+				/regist*=anon
+				/unauthorized=anon
+				/service/**=anon
+				/login=authc
+				/loginout=logout
+				/**=user
+				/**.ws=user
+				# more URL-to-FilterChain definitions here
+			</value>
+		</property>
+	</bean>
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+	<!-- 开启Shiro注解 -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>  
+		<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">  
+		<property name="securityManager" ref="securityManager"/>  
+    </bean> 
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="jdbcRealm" />
+<!-- 		<property name="cacheManager" ref="cacheManager" /> -->
+<!-- 		<property name="sessionManager" ref="defaultWebSessionManager"></property> -->
+	</bean>
+    <!-- 登录验证过滤 -->
+	<bean id="formAuthenticationFilter" class="com.ilib.other.shiro.CaptchaFormAuthenticationFilter">
+		<property name="indexPage" value="/index"></property>
+	</bean>
+	<!-- 退出跳转到登录页 -->
+	<bean id="logoutFilter" class="com.ilib.other.shiro.LoginoutFilter">
+	     <property name="redirectUrl" value="/login" />
+	</bean>
+
+	<!-- session共享 -->
+<!-- 	<bean id="defaultWebSessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager"> -->
+<!-- 	    <property name="globalSessionTimeout" value="1800000" /> -->
+<!-- 	     <property name="sessionDAO" ref="redisSessionDAO" /> -->
+<!-- 	      <property name="sessionIdCookie" ref="cookieTmp"></property> -->
+<!-- 	</bean> -->
+
+<!-- 	<bean id="redisSessionDAO" class="dtom.shiro.RedisSessionDAO"> -->
+<!-- 		<property name="redisManager" > -->
+<!-- 		    <bean class="dtom.shiro.RedisManager"> -->
+<!-- 				<property name="host" value="172.16.6.3"></property> -->
+<!-- 				<property name="dbindex" value="1"></property> -->
+<!-- 				<property name="password" value="etwin2015987"></property> -->
+<!-- 			</bean> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+
+<!-- 	<bean id="cookieTmp" class="org.apache.shiro.web.servlet.SimpleCookie"> -->
+<!-- 		<property name="domain" value="et-win.com"></property> -->
+<!-- 		<property name="path" value="/"></property> -->
+<!-- 		<property name="httpOnly" value="true"></property> -->
+<!-- 		<property name="name" value="JSESSIONID"></property> -->
+<!-- 	</bean> -->
+
+	<!-- cache共享 -->
+<!-- 	<bean id="cacheManager" class="dtom.shiro.RedisCacheManager"> -->
+<!--       	<property name="redisManager" > -->
+<!--       	    	<bean  class="dtom.shiro.RedisManager"> -->
+<!-- 				<property name="host" value="172.16.6.3"></property> -->
+<!-- 				<property name="dbindex" value="1"></property> -->
+<!-- 				<property name="password" value="etwin2015987"></property> -->
+<!-- 				</bean> -->
+<!--       	</property> -->
+<!-- 	</bean> -->
+	<!-- <bean id="hashedCredentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher"> <property name="hashAlgorithmName" value="MD5"
+		/> <property name="storedCredentialsHexEncoded" value="true" /> <property name="hashIterations" value="1" /> </bean> -->
+
+<!-- 	<bean id="jdbcRealm" class="dtom.shiro.ShiroDbRealm"> -->
+	<bean id="jdbcRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
+		<property name="dataSource" ref="driverManagerDataSource" />
+		<property name="authenticationQuery" 
+			value="SELECT u.pwd FROM r_user u force index(index_user_username) WHERE u.username =?"></property>
+		<property name="userRolesQuery"
+			value="SELECT r.rolename FROM r_role r LEFT JOIN r_userrole ur force index(index_userrole_uid,index_userrole_rid) ON r.id = ur.rid LEFT JOIN r_user u force index(index_user_username) ON ur.uid = u.id WHERE u.username= ? order by r.id asc" />
+		<property name="permissionsQuery"
+			value="SELECT c.rolecode FROM r_code c LEFT JOIN  r_rolecode rc force index(index_rolecode_rid,index_rolecode_cid) ON c.id= rc.cid LEFT JOIN r_role r force index(index_role_rolename) ON rc.rid = r.id WHERE r.rolename = ? order by c.id asc" />
+		<property name="permissionsLookupEnabled" value="true" />
+		<property name="authorizationCachingEnabled" value="false"/><!-- 不使用缓存，实时更新权限 -->  
+		<!-- <property name="saltStyle" value="COLUMN" /> -->
+		<property name="saltStyle" value="NO_SALT" />
+<!-- 		 <property name="credentialsMatcher" ref="hashedCredentialsMatcher" /> -->
+	</bean>
+</beans>

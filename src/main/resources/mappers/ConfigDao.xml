@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.ilib.dao.ConfigDao"> 
+	<resultMap id="commonResultMap" type="com.ilib.model.BaseModel">
+		<id column="enable" property="enable" jdbcType="CHAR" /> 
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" /> 
+		<result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" />
+		<result column="creater" property="creater" jdbcType="INTEGER" />
+		<result column="modifier" property="modifier" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="baseResultMap" type="com.ilib.model.Config" extends="commonResultMap">
+		<id column="id" property="id" jdbcType="INTEGER" /> 
+		<result column="ckey" property="ckey" jdbcType="VARCHAR" /> 
+		<result column="cvalue" property="cvalue" jdbcType="VARCHAR" />
+		<result column="ctype" property="ctype" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="base_column" >
+		id,ckey,cvalue,ctype,createtime,updatetime,creater,modifier,enable
+    </sql>
+ 	
+ 	<select id="getConfigValueByKey" parameterType="String" resultType="String">
+ 		select cvalue from t_config force index(index_config_ckey) where 1=1 and ckey = #{key} and `enable` = 'Y';
+ 	</select>
+ 	
+ 	<select id="getConfigurations" parameterType="java.util.Map" resultType="com.ilib.model.Config">
+ 		select 
+		c.id as id,
+		c.ckey as ckey,
+		c.cvalue as cvalue,
+		c.enable as `enable`,
+		c.createtime as createtime,
+		c.desc as `desc`,
+		u.username as createrName,
+		ct.ctypename as `type` 
+		from t_config c force index(index_config_ctype,index_config_creater),
+		t_configtype ct,
+		r_user u
+		where 1=1
+		and c.ctype = ct.id
+		and c.creater = u.id
+		<if test="ckey != null and ckey != ''">
+			and c.ckey = #{ckey}
+		</if>
+		<if test="ctype != null">
+			and c.ctype = #{ctype}
+		</if>
+		order by c.createtime desc
+		limit #{page},#{pagesize}
+ 	</select>
+ 	<select id="getConfigurationsCount" parameterType="java.util.Map" resultType="java.lang.Long">
+ 		select count(1) as total from 
+		(
+	 		select 
+			c.id as id,
+			c.ckey as ckey,
+			c.cvalue as cvalue,
+			c.enable as `enable`,
+			c.createtime as createtime,
+			c.desc as `desc`,
+			u.username as createrName,
+			ct.ctypename as `type` 
+			from t_config c force index(index_config_ctype,index_config_creater),
+			t_configtype ct,
+			r_user u
+			where 1=1
+			and c.ctype = ct.id
+			and c.creater = u.id
+			<if test="ckey != null and ckey != ''">
+				and c.ckey = #{ckey}
+			</if>
+			<if test="ctype != null">
+				and c.ctype = #{ctype}
+			</if>
+			order by c.createtime desc
+		) _tmp
+ 	</select>
+ 	
+ 	<insert id="insertConfiguration" parameterType="com.ilib.model.Config">
+		insert into t_config
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="ckey != null">
+				ckey,
+			</if>
+			<if test="cvalue != null">
+				cvalue,
+			</if>
+			<if test="desc != null">
+				`desc`,
+			</if>
+			<if test="ctype != null">
+				ctype,
+			</if>
+			<if test="creater != null">
+				creater,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="ckey != null">
+				#{ckey,jdbcType=VARCHAR},
+			</if>
+			<if test="cvalue != null">
+				#{cvalue,jdbcType=VARCHAR},
+			</if>
+			<if test="desc != null">
+				#{desc,jdbcType=VARCHAR},
+			</if>
+			<if test="ctype != null">
+				#{ctype,jdbcType=INTEGER},
+			</if>
+			<if test="creater != null">
+				#{creater,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="checkConfigExists" parameterType="java.lang.String" resultType="java.lang.Long">
+ 		select count(1) as count from t_config force index(index_config_ckey) where 1=1 and ckey = #{ckey};
+ 	</select>
+ 	<delete id="deleteConfigById" parameterType="java.lang.Integer">
+ 		delete from t_config where 1=1 and id= #{id}
+ 	</delete>
+ 	<select id="getConfigByPrimaryKey" parameterType="Integer" resultType="com.ilib.model.Config">
+ 		select 
+ 			c.id as id,
+			c.ckey as ckey,
+			c.cvalue as cvalue,
+			c.ctype as ctype,
+			c.enable as `enable`,
+			c.desc as `desc`
+		from t_config c where 1=1
+			and c.id = #{id}	
+ 	</select>
+ 	<update id="updateConfigByPrimaryKey" parameterType="com.ilib.model.Config">
+ 		update t_config t set t.ckey = #{ckey},t.cvalue=#{cvalue},t.ctype=#{ctype},t.enable=#{enable},t.desc=#{desc} where id = #{id}
+ 	</update>
+</mapper>

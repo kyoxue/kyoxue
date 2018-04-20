@@ -1,0 +1,21 @@
+1 首先需要的资源文件：
+  kkpager.min.js
+  main.pager.js
+  jquery-1.9.1.js
+  kkpager.css
+  
+2 使用
+  后台提供2个值：totalPage totalRecords
+  1查询total条数，total=xxService.getXxTotal();
+  2调用工具类PageUtil，获取${totalPage},${totalRecords}给到前台
+	//Constant.COMMON_PAGE_SIZE 分页大小
+	//total 条件查询的总数
+	//request HttpServletRequest
+	//menu 查询条件封装的实体或Map，注意：如果是实体要继承Page
+	com.ilib.utils.PageUtil.prepare(Constant.COMMON_PAGE_SIZE, total.intValue(), request, menu);
+  3前台在要显示分页的位置放div标记，id必须是kkpager
+   <div class="clr" id="kkpager"></div>
+  4在页面加载完成时，调用分页
+  $(function(){
+		pagenation(${totalPage},${totalRecords},'${contextPath }/config/configurations');
+	}); 	

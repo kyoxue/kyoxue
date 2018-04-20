@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.ilib.dao.ConfigTypeDao"> 
+	<select id="getConfigurationTypes" resultType="java.util.Map">
+		select id,ctypename from t_configtype where enable = 'Y' order by id asc;
+	</select>
+	<select id="getConfigurationTypeById" resultType="java.lang.String" parameterType="java.lang.Integer">
+		select ctypename from t_configtype where enable = 'Y' and id = #{id};
+	</select>
+</mapper>

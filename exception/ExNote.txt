@@ -1,0 +1,38 @@
+1、maven install报invalid LOC header (bad signature)错误：到maven仓库删除对应的包，然后重新intsall让maven下载。
+
+2、No qualifying bean of type [com.ilib.dao.UserDao] found for dependency: expected at least 1 bean which qualifies as autowire......
+   基本问题是包配置不正确，没扫描到，或者注解驱动没打开。
+   还有一种情况也会导致，就是dao的XML里面有语法或者错误，也会报这个异常。
+   dao的xml错误还会导致启动服务器的时候循环不停的去扫mapper文件。
+   本次错误记录：因为我把jdbcType="INTEGER"，写成了jdbcType="Integer"，可见这个字段的值是固定的，区分大小写。  
+
+3、maven install的时候如果报POM xxx is missing，找不到jar包错误，可能未配置依赖，或者是项目依赖工程没有install。
+   还有种情况，就是本地库有jar但是一直报找不到，这时候就要核对groupId和artifactId是否和库里的一致！！！   
+   
+4、使用@webservlet，404的问题
+   jar包：
+   <dependency>
+    	<groupId>javax.servlet</groupId>
+    	<artifactId>javax.servlet-api</artifactId>
+    	<version>3.0.1</version>
+	</dependency>
+	<dependency>
+	    <groupId>javax.servlet.jsp.jstl</groupId>
+	    <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+	    <version>1.2.1</version>
+	</dependency>
+	<dependency>
+		<groupId>taglibs</groupId>
+		<artifactId>standard</artifactId>
+		<version>1.1.2</version>
+	</dependency>
+	注意web.xml需要配置成3.0，并且！！！！很重要metadata-complete="false"   很重要metadata-complete="false" 很重要metadata-complete="false"
+	web.xml头部：
+	<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xmlns="http://java.sun.com/xml/ns/javaee" 
+		 	 xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+			 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	         id="WebApp_ID" version="3.0" metadata-complete="false"> 
+	         
+5jetty websocket页面调用ws://返回302的问题
+   在host文件添加域名映射127.0.0.1 www.kyoxue.com 然后用域名+端口访问	         

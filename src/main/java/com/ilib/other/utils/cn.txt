@@ -1,0 +1,1 @@
+com.ilib.other引入到了spring环境，所有设计spring自动装配的工具类，放入这里。

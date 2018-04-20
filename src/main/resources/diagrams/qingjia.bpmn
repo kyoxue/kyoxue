@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="qingjia" name="请假流程" isExecutable="true">
+    <startEvent id="startevent1" name="Start">
+      <extensionElements>
+        <activiti:executionListener event="start" expression="${actListener.qingjia(execution)}"></activiti:executionListener>
+      </extensionElements>
+    </startEvent>
+    <userTask id="bzr" name="班主任审批">
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${actListener.bzrApprove(task)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="jdczr" name="教务主任审批">
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${actListener.jdczrApprove(task)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow2" sourceRef="bzr" targetRef="jdczr"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow3" sourceRef="jdczr" targetRef="endevent1">
+      <extensionElements>
+        <activiti:executionListener event="take" expression="${actListener.over(execution)}"></activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
+    <userTask id="student" name="开始请假">
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${actListener.xsApprove(task)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow4" sourceRef="student" targetRef="bzr"></sequenceFlow>
+    <sequenceFlow id="flow5" sourceRef="startevent1" targetRef="student"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_qingjia">
+    <bpmndi:BPMNPlane bpmnElement="qingjia" id="BPMNPlane_qingjia">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="540.0" y="38.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="bzr" id="BPMNShape_bzr">
+        <omgdc:Bounds height="55.0" width="105.0" x="505.0" y="223.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="jdczr" id="BPMNShape_jdczr">
+        <omgdc:Bounds height="55.0" width="105.0" x="508.0" y="370.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="543.0" y="490.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="student" id="BPMNShape_student">
+        <omgdc:Bounds height="55.0" width="105.0" x="505.0" y="131.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="557.0" y="278.0"></omgdi:waypoint>
+        <omgdi:waypoint x="560.0" y="370.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="560.0" y="425.0"></omgdi:waypoint>
+        <omgdi:waypoint x="560.0" y="490.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="557.0" y="186.0"></omgdi:waypoint>
+        <omgdi:waypoint x="557.0" y="223.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="557.0" y="73.0"></omgdi:waypoint>
+        <omgdi:waypoint x="557.0" y="131.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.ilib.dao.MenuDao"> 
+	<resultMap id="baseResultMap" type="com.ilib.model.Menu">
+		<id column="id" property="id" jdbcType="INTEGER" /> 
+		<result column="menu" property="menu" jdbcType="VARCHAR" /> 
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="enable" property="enable" jdbcType="CHAR" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="creater" property="creater" jdbcType="INTEGER" />
+		<result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" /> 
+		<result column="modifier" property="modifier" jdbcType="INTEGER" />
+		<result column="parentid" property="parentid" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="menu_column" >
+		id,menu,url,remark,sort,enable,createtime,creater,updatetime,modifier,parentid
+    </sql>
+	
+	<select id="getChildIdArr" statementType="CALLABLE" parameterType="java.util.Map">
+        {
+        	#{childIdArr,mode=OUT,jdbcType=VARCHAR} = call kyoxue.SP_FUNC_MENU(#{parentId,mode=IN,jdbcType=INTEGER})
+        }
+ 	</select>
+ 	
+ 	<select id="getChildMenu" parameterType="Map" resultType="com.ilib.model.Menu">
+ 		SELECT
+			<include refid="menu_column" />
+		FROM
+			r_menu force index(index_menu_sort,index_rolemenu_parentid)
+		WHERE   1=1
+		AND FIND_IN_SET(
+			id,
+			#{childIdArr}
+		)
+		AND id != #{parentId}
+		AND parentid=#{parentId}
+		ORDER BY sort ASC    
+ 	</select>
+ 	
+ 	<select id="getTopMenu" resultType="com.ilib.model.Menu" parameterType="java.lang.Long">
+ 		select 
+		m.id,m.menu,m.url,m.remark,m.sort,m.enable,m.createtime,m.creater,m.updatetime,m.modifier,m.parentid
+ 		from 
+		r_user u,
+		r_role r,
+		r_userrole ro force index(index_userrole_uid,index_userrole_rid),	
+		r_menu m force index(index_rolemenu_parentid,index_menu_sort), 
+		r_rolemenu rm force index(index_rolemenu_rid,index_rolemenu_mid)
+ 		where 1=1
+		and u.id = ro.uid
+		and u.id = #{uid}
+                and r.id = ro.rid
+                and r.id = rm.rid
+                and m.id = rm.mid
+ 		and m.parentid is null
+ 		and m.enable = 'Y'
+ 		order by m.sort asc;
+ 	</select>
+ 	<select id="getTopMenuManagerCount" resultType="java.lang.Long" parameterType="com.ilib.model.Menu">
+ 		select count(1) as total from 
+ 		(
+	 		select 
+			m.id,m.menu,m.url,m.remark,m.sort,m.enable,m.createtime,m.creater,m.updatetime,m.modifier,m.parentid
+	 		from 
+			r_menu m force index(index_rolemenu_parentid,index_menu_sort)
+	 		where 1=1
+	 		and m.parentid is null
+	 		<if test="menu!=null and menu!=''">
+	 			and m.menu = #{menu}
+	 		</if>
+	 		<if test="enable!=null and enable!=''">
+	 			and m.enable = #{enable}
+	 		</if>
+	 		order by m.sort asc
+ 		) _tmp
+ 	</select>
+ 	<select id="getTopMenuManager" resultType="com.ilib.model.Menu" parameterType="com.ilib.model.Menu">
+ 		select 
+		m.id,m.menu,m.url,m.remark,m.sort,m.enable,m.createtime,m.creater,m.updatetime,m.modifier,m.parentid
+ 		from 
+		r_menu m force index(index_rolemenu_parentid,index_menu_sort)
+ 		where 1=1
+ 		and m.parentid is null
+ 		<if test="menu!=null and menu!=''">
+ 			and m.menu = #{menu}
+ 		</if>
+ 		<if test="enable!=null and enable!=''">
+ 			and m.enable = #{enable}
+ 		</if>
+ 		order by m.sort asc
+ 		limit #{page},#{pagesize}
+ 	</select>
+ 	
+ 	<select id="getChildMenuManager" resultType="com.ilib.model.Menu" parameterType="java.lang.Long">
+ 		select 
+		m.id,m.menu,m.url,m.remark,m.sort,m.enable,m.createtime,m.creater,m.updatetime,m.modifier,m.parentid
+		from
+		r_menu m force index(index_rolemenu_parentid,index_menu_sort)
+		where 1=1
+		and m.parentid = #{parentid}
+		order by m.sort asc;
+ 	</select>
+</mapper>

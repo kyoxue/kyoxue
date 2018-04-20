@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+<configuration debug="true" scan="false">
+	<contextName>ilib</contextName>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %C{1} [%M:%L] [%thread]- %msg%n</pattern>
+		</encoder>
+	</appender>  
+
+ 	<Property name="log.base" value="${ilib.root}/logs" />
+  	<Property name="log.name" value="lib" />
+	<Property name="log.level" value="debug" /> 
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${log.base}/${log.name}.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- ${v2:-toto}        //格式是 ${变量名:-默认值}，光有冒号还不够，再加条短线后面才是默认值 -->
+			<!-- ${log.base:-.}  设置默认值"."，如果没有定义  log.base  系统属性或环境变量时，生成的日志文件在 ./logs 目录下 -->
+			<FileNamePattern>${log.base:-.}/${log.name}-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>15MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %C{1} [%M:%L] [%thread] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		<discardingThreshold>0</discardingThreshold>
+		<queueSize>512</queueSize>
+		<appender-ref ref="FILE" />
+	</appender>
+
+	<root level="${log.level}"> 
+		<appender-ref ref="ASYNC" />
+		<!-- <appender-ref ref="STDOUT" /> -->
+	</root>
+
+	<logger name="org.springframework" additivity="true" level="${log.level}" />
+	<logger name="org.mybatis.spring" additivity="true" level="${log.level}" />
+	<logger name="java.sql" additivity="true" level="${log.level}" />
+
+</configuration>

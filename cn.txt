@@ -1,0 +1,7 @@
+搭建环境
+spring3.2.2.RELEASE springmvc activiti5.18.0 mybatis3.2.5 mysql5.1.29 servlet3.0
+jetty8.1.14.v20131031
+eclipse Neon 4.6.0
+jdk8 说明下，Neon版本eclipse必须JDK8以上，但是在开发过程中我们也可以把编译版本降为1.7。
+             因为其它软件版本可能使用的不高，比如maven，不然在install的时候会不能编译的版本问题出现。
+             

@@ -1,0 +1,10 @@
+eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
+encoding//src/main/resources=UTF-8
+encoding//src/main/resources/mail.properties=UTF-8
+encoding//src/main/webapp/WEB-INF/views/common/commmon_base.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/common/common_date.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/common/common_workspace.jsp=UTF-8
+encoding//src/test/java=UTF-8
+encoding//src/test/resources=UTF-8
+encoding/<project>=UTF-8

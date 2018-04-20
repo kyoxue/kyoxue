@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xmlns="http://java.sun.com/xml/ns/javaee" 
+		 xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	            id="WebApp_ID" version="3.0" metadata-complete="false">
+	<display-name>ilib</display-name>
+	<filter>
+		<description>字符集过滤器</description>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<description>字符集编码</description>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<!-- 必须加，不然返回前台会乱码，等于true才会去过滤！ -->
+		<init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+		<init-param>
+			<param-name>ignore</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!-- 添加shiro过滤器 -->
+	  <filter>
+	    <filter-name>shiroFilter</filter-name>
+	    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	    <init-param>
+	    	<!-- 该值缺省为false，表示声明周期由SpringApplicationContext管理，设置为true表示ServletContainer管理 -->
+	    	<param-name>targetFilterLifecycle</param-name>
+	    	<param-value>true</param-value>
+	    </init-param>
+	  </filter>
+	  <filter-mapping>
+	    <filter-name>shiroFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	  </filter-mapping>
+	 <context-param>
+  		<param-name>CROSS_ORIGIN</param-name>
+		<param-value>*</param-value>
+  	</context-param>
+	  <!-- 监听上下文路径 -->
+	<listener>
+		<!--如果日志输出使用的LOG4J，配置了Log4jConfigListener监听器，则不需要再配置这个，因为已经包含了。  -->
+		<description>WebAppRoot监听器</description>
+		<listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
+	</listener>
+	<!-- 日志文件配置位置 -->
+	<context-param>
+	  <param-name>logbackConfigLocation</param-name>
+	  <param-value>classpath:logback.xml</param-value><!-- 如果放在WEB-INF下则：/WEB-INF/logback.xml -->
+	 </context-param>
+	 <!-- 上下文路径，主要给日志输出文件用 -->
+	 <context-param>
+	  <param-name>webAppRootKey</param-name>
+	  <param-value>ilib.root</param-value>
+	 </context-param>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:spring/spring-base.xml</param-value>
+	</context-param>
+	<listener>
+		<description>spring监听器</description>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<listener>
+		<description>防止spring内存溢出监听器</description>
+		<listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+	</listener>
+	<!-- spring mvc servlet -->
+	<servlet>
+		<description>spring mvc servlet</description>
+		<servlet-name>springMvc</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<description>spring mvc 配置文件</description>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:spring/spring-mvc.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springMvc</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	<!-- spring mvc 3.0后静态资源映射配置方式，
+	     3.0前可以使用mvc:resources在spring mvc配置文件中配置 
+	     如果不想配置这里，可以把springMvc的路径带个后缀，比如*.do，请求xx.do
+	     如果用/则需要过滤，不然静态资源会被拦截无法访问。
+	     3.0后可以在spring mvc里通过mvc:default-servlet-handler来映射
+	-->
+	<!-- <servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>/js/*</url-pattern>
+		<url-pattern>/css/*</url-pattern>
+		<url-pattern>/images/*</url-pattern>
+	</servlet-mapping> -->
+	<!-- 配置CXF -->
+	<servlet>
+		<servlet-name>CXFServlet</servlet-name>
+		<servlet-class>
+			org.apache.cxf.transport.servlet.CXFServlet
+        </servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CXFServlet</servlet-name>
+		<url-pattern>/service/*</url-pattern>
+	</servlet-mapping>
+	<!-- 自定义标签 -->
+	<jsp-config>
+		<taglib>
+			<taglib-uri>/tags/ConfigValue</taglib-uri>
+			<taglib-location>/WEB-INF/tlds/ConfigValue.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>/tags/SelectOption</taglib-uri>
+			<taglib-location>/WEB-INF/tlds/SelectOption.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>/tags/ConfigTypeOption</taglib-uri>
+			<taglib-location>/WEB-INF/tlds/ConfigTypeOption.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>/datetime.format</taglib-uri>
+			<taglib-location>/WEB-INF/tlds/DateTimeFormat.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>/userid.format</taglib-uri>
+			<taglib-location>/WEB-INF/tlds/UserIdFormat.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>/option.desc</taglib-uri>
+			<taglib-location>/WEB-INF/tlds/SelectOptionDesc.tld</taglib-location>
+		</taglib>
+	</jsp-config>
+	<!-- 验证码图片的样式控制 -->
+	<servlet>
+		<servlet-name>Kaptcha</servlet-name>
+		<servlet-class>com.google.code.kaptcha.servlet.KaptchaServlet</servlet-class>
+		<!-- 图片的宽度 -->
+		<init-param>
+			<param-name>kaptcha.border</param-name>
+			<param-value>no</param-value>
+		</init-param>
+		<!-- 图片的宽度 -->
+		<init-param>
+			<param-name>kaptcha.image.width</param-name>
+			<param-value>66</param-value>
+		</init-param>
+		<!-- 图片的高度 -->
+		<init-param>
+			<param-name>kaptcha.image.height</param-name>
+			<param-value>28</param-value>
+		</init-param>
+		<!-- 验证码字的长度 -->
+		<init-param>
+			<param-name>kaptcha.textproducer.char.length</param-name>
+			<param-value>3</param-value>
+		</init-param>
+		<!-- 字体大小 -->
+		<init-param>
+			<param-name>kaptcha.textproducer.font.size</param-name>
+			<param-value>25</param-value>
+		</init-param>
+		<!-- 字体颜色 -->
+		<init-param>
+			<param-name>kaptcha.textproducer.font.color</param-name>
+			<param-value>black</param-value>
+		</init-param>
+		<!-- 字体类型 -->
+		<init-param>
+			<param-name>kaptcha.textproducer.font.names</param-name>
+			<param-value>宋体,楷体,微软雅黑</param-value>
+		</init-param>
+		<!-- 干扰实现类 -->
+		<!-- <init-param> <param-name>kaptcha.noise.impl</param-name> <param-value>com.google.code.kaptcha.impl.DefaultNoise</param-value>
+			</init-param> -->
+		<!-- <init-param>背景颜色 <param-name>kaptcha.background.clear.to</param-name>
+			<param-value>white</param-value> </init-param> -->
+		<!-- 干扰线颜色 -->
+		<!-- <init-param> <param-name>kaptcha.noise.color</param-name> <param-value>blue</param-value>
+			</init-param> -->
+
+		<!--图片样式 水纹 com.google.code.kaptcha.impl.WaterRipple 鱼眼com.google.code.kaptcha.impl.FishEyeGimpy
+			阴影com.google.code.kaptcha.impl.ShadowGimpy -->
+		<init-param>
+			<param-name>kaptcha.obscurificator.impl</param-name>
+			<param-value>com.google.code.kaptcha.impl.ShadowGimpy</param-value>
+		</init-param>
+
+		<!-- 如果需要全部数字 -->
+		<init-param>
+			<param-name>kaptcha.textproducer.char.string</param-name>
+			<param-value>0123456789</param-value>
+		</init-param>
+		<!-- 去掉干扰线 -->
+		<init-param>
+			<param-name>kaptcha.noise.impl</param-name>
+			<param-value>com.google.code.kaptcha.impl.NoNoise </param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	<!-- 验证码图片样式控制结束 -->
+	<!-- 错误跳转页面 --> 
+	<error-page> 
+		<!-- 路径不正确 --> 
+		<error-code>404</error-code> 
+		<location>/WEB-INF/errorpage/404.jsp</location> 
+	</error-page> 
+	<error-page> 
+		<!-- 没有访问权限，访问被禁止 --> 
+		<error-code>405</error-code> 
+		<location>/WEB-INF/errorpage/405.jsp</location> 
+	</error-page> 
+	<error-page> 
+	<!-- 内部错误 --> 
+		<error-code>500</error-code> 
+		<location>/WEB-INF/errorpage/500.jsp</location> 
+	</error-page> 
+	<!-- 根目录默认加载页面 -->
+	<welcome-file-list>
+		<welcome-file>/index.jsp</welcome-file>
+	</welcome-file-list>
+	<!-- session超时时间，单位分钟 -->
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+</web-app>

@@ -1,0 +1,244 @@
+1思考
+有了spring mvc的rest风格请求，为什么还需要jax-ws搭建rest风格请求呢？
+因为spring mvc是我们这个工程的web层，是整个系统的控制层，会涉及到请求权限的控制和过滤
+比如spring mvc这里配置的请求根路径是/，那么如果把spring mvc做的接口暴露给第三方调用就会涉及到角色和权限的登录和控制
+而我们单独弄个专门暴露第三方的接口路径，配置这个路径暴露不涉及权限，在shiro中配置比如/service/**=anno，这样所有/service/**的请求可以自由通过。也就是专门用来写接口
+
+2 配置涉及的maven
+ a 版本（注意本工程环境用的spring3.2，servlet3，jetty9，jdk8，所有cxf版本3.1.8合适，切勿随便调低版本，比如2.6.1会报找不到类的异常。）
+ <cxf.version>3.1.8</cxf.version>
+ <jackson.version>1.9.13</jackson.version>
+ 
+ b jax涉及的包和依赖以及自动转换数据的包
+ <!-- cxf rest -->
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-rs-extension-providers</artifactId>
+		<version>3.1.0</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.jettison</groupId>
+		<artifactId>jettison</artifactId>
+		<version>1.3.5</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>axis</groupId>
+		<artifactId>axis</artifactId>
+		<version>1.4</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.woodstox</groupId>
+		<artifactId>stax2-api</artifactId>
+		<version>3.1.1</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>javax.ws.rs</groupId>
+		<artifactId>jsr311-api</artifactId>
+		<version>1.1.1</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-transports-http</artifactId>
+		<version>${cxf.version}</version>
+	</dependency>
+	<dependency>  
+        <groupId>org.apache.cxf</groupId>  
+        <artifactId>cxf-rt-frontend-simple</artifactId>  
+        <version>${cxf.version}</version>  
+	</dependency>  
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		<version>${cxf.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		<version>${cxf.version}</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.apache.cxf</groupId>
+	    <artifactId>cxf-rt-bindings-soap</artifactId>
+	    <version>${cxf.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-mapper-asl</artifactId>
+		<version>${jackson.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-core-asl</artifactId>
+		<version>${jackson.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-jaxrs</artifactId>
+		<version>${jackson.version}</version>
+	</dependency>
+	<!-- 此包不可缺！只要引入这个包jax-rs默认第一时间使用这个驱动作为解析前台数据序列化到实体的Provider" -->
+	<dependency>
+	    <groupId>org.glassfish.jersey.media</groupId>
+	    <artifactId>jersey-media-moxy</artifactId>
+	    <version>2.2</version>
+	</dependency>		
+	
+	<dependency>
+	    <groupId>com.fasterxml.jackson.jaxrs</groupId>
+	    <artifactId>jackson-jaxrs-json-provider</artifactId>
+	    <version>2.4.0-rc3</version>
+	</dependency>
+	<!-- cxf rest end -->
+	
+3 配置cxf的spring文件
+    配置文件spring的头这里就掠过了，说明的是还需要配置jax的头：
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xsi:schemaLocation中增加 "http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd"
+    
+    <!-- 引入CXF下面的配置文件 -->
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	
+	<util:list id="jsonTypes">
+		 <value>application/json</value>  
+        <value>application/jettison</value>  
+	</util:list>
+	<!-- 拦截服务请求 解决乱码 -->
+	<bean id="inLoggingInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />  
+	<bean id="outLoggingInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+	<bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/> 
+	<!-- 配置需要暴露的BeanService -->
+	<jaxrs:server id="restContainer" address="/">
+		<jaxrs:serviceBeans>
+			<ref bean="你的接口实现类的bean id"/><!-- @Service定义的名字 -->
+		</jaxrs:serviceBeans>
+		<jaxrs:providers> 
+            <ref bean="jsonProvider"/> 
+    	</jaxrs:providers> 
+		<!-- 主要是为了解决传输内容在LoggingInInterceptor类内构建并输出时的乱码问题 -->
+		 <jaxrs:inInterceptors>  
+            <ref bean="inLoggingInterceptor"/>  
+        </jaxrs:inInterceptors>  
+        <jaxrs:outInterceptors>  
+            <ref bean="outLoggingInterceptor"/>  
+        </jaxrs:outInterceptors>  
+        <jaxrs:extensionMappings>
+           <entry key="json" value="application/json" /> 
+           <entry key="xml" value="application/xml" /> 
+        </jaxrs:extensionMappings>  
+        <jaxrs:languageMappings>  
+            <entry key="en" value="en-gb"/>    
+        </jaxrs:languageMappings> 
+	</jaxrs:server>	
+	
+4 配置web.xml设置接口访问的根路径
+  <!-- 配置CXF -->
+	<servlet>
+		<servlet-name>CXFServlet</servlet-name>
+		<servlet-class>
+			org.apache.cxf.transport.servlet.CXFServlet
+        </servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CXFServlet</servlet-name>
+		<url-pattern>/service/*</url-pattern><!-- 根路径名字service可以写成任意 -->
+	</servlet-mapping>	
+	
+5 因为工程用了shiro控制访问，所有把/service/**=anno配置到shiro配置文件，不受系统访问权限控制。
+
+6 写接口和实现类，注意接口和实现类的包位置需要在spring环境下，也就是compant scan要能扫描到。<context:component-scan base-package="com.ilib.service"/>
+  注意实现类和涉及的bean要implaments serializable，如果要xml自动转换，bean要加注解：@XmlRootElement(name = "bean的名字") 
+  a 接口例子：
+    @Path("rstest")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public interface RsTestService {
+		@POST
+		@Path("/testpost")
+		@Consumes(MediaType.APPLICATION_JSON)
+		@Produces(MediaType.APPLICATION_JSON)
+		public Response selectBy(String titleJson)throws Exception;
+		@PUT  
+		@Path("/testput")
+		@Consumes(MediaType.APPLICATION_JSON)  
+		@Produces(MediaType.APPLICATION_JSON)
+		public String create(final Notice notice)throws Exception ;
+		
+		@GET
+		@Path("/testget")
+		@Produces(MediaType.APPLICATION_JSON)
+		public Notice getConfig(@QueryParam("id") Long id)throws Exception;
+		
+		@GET
+		@Path("/testpathget/{title}")
+		@Produces(MediaType.APPLICATION_JSON)
+		public Object getCfgMap(@PathParam("title") String title)throws Exception;
+	}	
+	
+ b 实现类：
+   @Service
+	public class TestService implements RsTestService,Serializable {
+	private static final long serialVersionUID = -5437240538041460776L;
+	@Autowired
+	private NoticeDao noticeDao;
+
+	@Override
+	public Response selectBy(String titleJson)throws Exception {
+		Notice notice = JSON.toJavaObject(JSON.parseObject(titleJson), Notice.class);
+		List<Notice> notices = noticeDao.getNoticeBy(notice.getTitle());
+		String json = JSON.toJSONStringWithDateFormat(notices, "yyyy-MM-dd HH:mm:ss");
+		return Response.ok(json).build();
+	}
+
+	@Override
+	public String create(Notice notice)throws Exception {
+		noticeDao.insertNotice(notice);
+		ResponseMessage rm = new ResponseMessage();
+		rm.setCode("0000");
+		rm.setSuccessInfo("保存成功！");
+		return JSON.toJSONStringWithDateFormat(rm, "yyyy-MM-dd HH:mm:ss");
+	}
+
+	@Override
+	public Notice getConfig(Long id) throws Exception {
+		return noticeDao.getNoticeByPrimarykey(id);
+	}
+
+	@Override
+	public Object getCfgMap(String title) throws Exception {
+		return noticeDao.getNoticeTitleAndContent(title);
+	}
+
+}	
+
+
+最后：
+测试jax-rs rest风格接口，推荐chrome的Postman插件，下载的插件可能会跟浏览器不兼容导致提示只能在应用商店安装。
+这个时候，你可以把插件后缀换成.zip然后解压得到一个目录，然后把目录里的_metadata重命名metadata，即去掉下划线，然后在chrome扩展程序中点加载已解压的扩展程序，选择文件夹安装。
+
+关于postman的使用：
+
+对照rest接口的定义
+如下面例子：
+@POST postman也切换成POST
+@Consumes(MediaType.APPLICATION_JSON) 
+postman找到headers，添加Content-Type=application/json 设置请求的数据格式
+postman找到body，点raw输入JSON内容
+@Produces(MediaType.APPLICATION_JSON) 
+postman最下面body，选择JSON来让返回内容以json格式展示。
+其它请求类型，方式，响应，都这样对照接口，来设置postman然后send
+
+415，你的请求ContentType与接口的Consumes不一致
+     你的响应Produces与前端接受返回类型不一致
+405  可能是你的请求方式和接口不一致，比如接口需要put你设置的是post
+200  成功测试调通，再测业务逻辑。     

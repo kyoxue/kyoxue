@@ -1,0 +1,102 @@
+关于spring-mvc使用aspect切面代理
+
+1步骤
+ 在pring-mvc中加上标签（重要，不然不起作用）:
+ 	<!-- aspectj切面编程启用，注意这个标签必须放在spring-mvc对应的xml中，即web.xml中配置的DispatcherServlet对应的XML文件，这里是spring-mvc.xml -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>   
+2定义一个元注解，这样可以拿着注解去我们需要的方法来使用拦截功能
+	@Retention(RetentionPolicy.RUNTIME)//注解会在class中存在，运行时可通过反射获取    
+	@Target(ElementType.METHOD)//目标是方法    
+	@Documented//文档生成时，该注解将被包含在javadoc中，可去掉    
+	public @interface TimeCost {
+	    public enum MethodType{ADD,UPDATE,DELETE,SEARCH};//被拦截方法的操作类型描述枚举定义  
+	    MethodType type() default MethodType.SEARCH;//操作类型 默认枚举中的SEARCH  
+	}	
+3写一个切面器来进行拦截处理，类上添加@Aspect（因为AOP使用的spring环境，所以这个切面器也需要让spring来实例化@Service）
+	@Aspect  
+	@Service  
+	public class TimeCostAspect {
+		Logger log = LoggerFactory.getLogger(TimeCostAspect.class); 
+		private long start = 0l;  
+		//定义一个关切点，这里是注解TimeCost，所有被这个注解使用的方法
+	    @Pointcut("@annotation(com.ilib.common.annotation.TimeCost)")  
+	    public void timeCostAspect() {  
+	    }  
+	    //被注解的方法执行前，进行doSomthing，timeCostAspect()为上面定义的方法名
+	    @Before("timeCostAspect()")  
+	    public void doBefore(JoinPoint joinPoint) {
+	    	String desc = getClassAndMethodDesc(joinPoint);
+	    	start = System.currentTimeMillis();
+	    	log.info(desc+"开始执行..当前开始时间"+DateTimeUtils.getDateTimeFromMill(start));
+	    }  
+	    //被注解的方法执行返回后，进行doSomthing，timeCostAspect()为上面定义的方法名  
+	    @AfterReturning(pointcut="timeCostAspect()")  
+	    public  void doAfter(JoinPoint joinPoint) {  
+	    	String desc = getClassAndMethodDesc(joinPoint);
+	    	long end = System.currentTimeMillis();
+	    	log.info(desc+"结束执行..当前结束时间"+DateTimeUtils.getDateTimeFromMill(end)); 
+	    	String diff =  DateTimeUtils.getMillDiff(start, end);
+	    	log.info("总共耗时："+diff);
+	    }  
+	    //被注解的方法抛出异常后，进行doSomthing，timeCostAspect()为上面定义的方法名 
+	    @AfterThrowing(value="timeCostAspect()",throwing="e")  
+	    public void doAfter(JoinPoint joinPoint, Exception e) {  
+	    	String desc = getClassAndMethodDesc(joinPoint);
+	        log.error(desc+"发生异常！",e);  
+	    }  
+	  
+	    private String getClassAndMethodDesc(JoinPoint joinPoint){
+	    	 //获得注解  
+        	TimeCost timeCostAnnotation = null;
+        	try {
+        		timeCostAnnotation =getTimeCost(joinPoint); 
+			} catch (Exception e) {
+				log.error("获取耗时注解对象异常！",e);
+				return "";
+			}
+            if(timeCostAnnotation == null)  
+            {  
+                return "";  
+            }  
+	    	// 获取目标方法签名  
+	    	String signature = joinPoint.getSignature().toString(); 
+            //方法名
+            String methodName = signature.substring(signature.lastIndexOf(".") + 1,signature.indexOf("("));  
+            //完整的类，方法，参数描述
+            //比如：execution(public java.lang.String com.ilib.controller.ConfigController.getconfigurations(javax.servlet.http.HttpServletRequest))
+            //String longTemp = joinPoint.getStaticPart().toLongString();  
+            //类名
+            String classType = joinPoint.getTarget().getClass().getName();  
+            //反射获取注解所在的类
+            Class<?> clazz = null;
+            try {
+				clazz = Class.forName(classType);
+			} catch (Exception e) {
+				log.error("耗时注解拦截获取注解所在的类说明异常！",e);
+				return "";
+			}
+            //类下所有公开的方法
+            Method[] methods = clazz.getDeclaredMethods();  
+            for (Method method : methods) {
+            	//当前方法上有耗时注解配置，并且方法名一致
+                if (method.isAnnotationPresent(TimeCost.class)&& method.getName().equals(methodName)) {  
+                    MethodType type = timeCostAnnotation.type();  
+                    String clazzName = clazz.getName(); 
+                    return clazzName+"."+methodName+"();操作类型："+type.toString()+"\t";
+                }  
+            }  
+            return "";
+	    }
+	    /**
+	     * 获取方法上的统计耗时注解对象
+	     */
+	    private static TimeCost getTimeCost(JoinPoint joinPoint) throws Exception {  
+	        Signature signature = joinPoint.getSignature();  
+	        MethodSignature methodSignature = (MethodSignature) signature;  
+	        Method method = methodSignature.getMethod();  
+	        if (method != null) {  
+	            return method.getAnnotation(TimeCost.class);  
+	        }  
+	        return null;  
+	    }  
+	}	

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.ilib.dao.UserDao"> 
+	<!-- 用户主表 -->
+	<resultMap id="baseResultMap" type="com.ilib.model.User">
+		<id column="id" property="id" jdbcType="INTEGER" /> 
+		<result column="username" property="username" jdbcType="VARCHAR" /> 
+		<result column="pwd" property="pwd" jdbcType="VARCHAR" />
+		<result column="departmentid" property="departmentid" jdbcType="INTEGER" />
+		<result column="enable" property="enable" jdbcType="CHAR" /> 
+		<result column="endtime" property="endtime" jdbcType="TIMESTAMP" />
+		<result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" /> 
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="creater" property="creater" jdbcType="INTEGER" />
+		<result column="modifier" property="modifier" jdbcType="INTEGER" />  
+		<result column="isblacklist" property="isblacklist" jdbcType="CHAR" /> 
+		<result column="lastupdatepwdtime" property="lastupdatepwdtime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 用户详细表 -->
+	<resultMap id="userDetailResultMap" type="com.ilib.model.UserDetail">
+		<id column="userDetailId" property="id" jdbcType="INTEGER" /> 
+		<result column="name" property="name" jdbcType="VARCHAR" /> 
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="qq" property="qq" jdbcType="VARCHAR" />
+		<result column="telephone" property="telephone" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" /> 
+		<result column="age" property="age" jdbcType="INTEGER" /> 
+		<result column="sex" property="sex" jdbcType="CHAR" /> 
+		<result column="birth" property="birth" jdbcType="VARCHAR" /> 
+		<result column="icon" property="icon" jdbcType="VARCHAR" /> 
+		<result column="remark" property="remark" jdbcType="VARCHAR" />  
+		<result column="userDetailupdatetime" property="updatetime" jdbcType="TIMESTAMP" />
+		<result column="userDetailmodifier" property="modifier" jdbcType="INTEGER" /> 
+		<result column="uid" property="uid" jdbcType="INTEGER" />
+	</resultMap>
+	<!-- 用户主表与详细表 -->
+	<resultMap type="com.ilib.model.User" id="userInfoResultMap" extends="baseResultMap">  
+		<association property="userDetail" resultMap="userDetailResultMap"/>  
+	</resultMap>  
+	<sql id="user_column" >
+		id,username,pwd,departmentid,enable,endtime,updatetime,createtime,creater,modifier,isblacklist,lastupdatepwdtime
+    </sql>
+    <sql id="user_detail_column" >
+		u.id,u.username,u.pwd,u.departmentid,u.enable,u.endtime,u.updatetime,u.createtime,u.creater,u.modifier,u.isblacklist,u.lastupdatepwdtime
+		,ud.id as userDetailId,ud.name,ud.email,ud.qq,ud.telephone,ud.mobile,ud.age,ud.sex,ud.birth,ud.icon,ud.remark,ud.updatetime as userDetailupdatetime,ud.modifier as userDetailmodifier,ud.uid
+    </sql>
+	<select id="getUserByUsername" parameterType="java.lang.String" resultType="com.ilib.model.User"> 
+		SELECT 
+		<include refid="user_column" />
+		 FROM 
+		 r_user force index(index_user_username) 
+		 WHERE (1=1)
+		 AND username = #{username} 
+	</select> 
+	
+	<select id="getUserDetailByUsername" parameterType="java.lang.String" resultType="com.ilib.model.User"> 
+		SELECT 
+		<include refid="user_detail_column" />
+		 FROM 
+		 r_user u force index(index_user_username)
+		 left join
+		 r_userdetail ud force index(index_userdetail_uid)
+		 WHERE (1=1)
+		 and u.id = ud.uid
+		 AND u.username = #{username} 
+	</select> 
+	<select id="getNameByID" parameterType="java.lang.Long" resultType="java.lang.String">
+		select ifnull(ud.name,u.username) as `name` from r_user u left JOIN r_userdetail ud force index(index_userdetail_uid)
+		on u.id = ud.uid
+		where u.id = #{id}
+	</select>
+</mapper>

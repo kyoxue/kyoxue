@@ -1,0 +1,562 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.kyo.ilib</groupId>
+  <artifactId>kyo-ilib</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name>Kyo - Ilib</name>
+  <properties>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  	<!-- 设置war包名称 -->
+	<finalName>ilib</finalName>
+    <activiti-version>5.18.0</activiti-version>
+    <shiro-version>1.2.2</shiro-version>
+    <spring-version>3.2.2.RELEASE</spring-version>
+    <slf4j.version>1.7.7</slf4j.version>
+    <activiti-version>5.18.0</activiti-version>
+    <cxf.version>3.1.8</cxf.version>
+    <jackson.version>1.9.13</jackson.version>
+  </properties>
+  <dependencies>
+  <dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+	<version>4.11</version>
+	</dependency>
+  <!-- spring env start -->
+	<!-- spring begin -->
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-core</artifactId>
+		<version>${spring-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-beans</artifactId>
+	<version>${spring-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-test</artifactId>
+	<version>${spring-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-context</artifactId>
+	<version>${spring-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-context-support</artifactId>
+	<version>${spring-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-tx</artifactId>
+	<version>${spring-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-orm</artifactId>
+	<version>${spring-version}</version>
+	</dependency>
+	<dependency> 
+	<groupId>org.springframework</groupId> 
+	<artifactId>spring-aop</artifactId> 
+	<version>${spring-version}</version> 
+	</dependency> 
+	<dependency> 
+	<groupId>org.springframework</groupId> 
+	<artifactId>spring-aspects</artifactId> 
+	<version>${spring-version}</version> 
+	</dependency>
+	<dependency> 
+	<groupId>org.springframework</groupId> 
+	<artifactId>spring-jdbc</artifactId> 
+	<version>${spring-version}</version> 
+	</dependency>
+	<!-- 这个是AOP依赖的包 -->
+	<dependency>
+		<groupId>org.aspectj</groupId>
+		<artifactId>aspectjweaver</artifactId>
+		<version>1.8.9</version>
+	</dependency>
+	<!-- 调度器依赖的包 -->
+	<dependency>
+		<groupId>org.quartz-scheduler</groupId>
+		<artifactId>quartz</artifactId>
+		<version>1.8.5</version>
+	</dependency>
+	<!-- spring mvc start -->
+	<dependency> 
+	<groupId>org.springframework</groupId> 
+	<artifactId>spring-web</artifactId> 
+	<version>${spring-version}</version> 
+	</dependency>
+	<dependency> 
+	<groupId>org.springframework</groupId> 
+	<artifactId>spring-webmvc</artifactId> 
+	<version>${spring-version}</version> 
+	</dependency> 
+	<!-- spring mvc end -->  
+	<!-- spring env end -->
+	<!-- dao start -->
+	<dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>5.1.29</version>
+	</dependency>
+	<dependency>
+		<groupId>org.mybatis</groupId>
+		<artifactId>mybatis</artifactId>
+		<version>3.2.5</version>
+	</dependency>
+	<dependency> 
+		<groupId>org.mybatis</groupId> 
+		<artifactId>mybatis-spring</artifactId> 
+		<version>1.2.0</version> 
+	</dependency> 
+	<!-- dao end -->
+   <!-- activiti start -->
+    <dependency>
+	<groupId>org.activiti</groupId>
+	<artifactId>activiti-engine</artifactId>
+	<version>${activiti-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.activiti</groupId>
+	<artifactId>activiti-spring</artifactId>
+	<version>${activiti-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.activiti</groupId>
+	<artifactId>activiti-bpmn-model</artifactId>
+	<version>${activiti-version}</version>
+	</dependency>
+	<dependency> 
+	<groupId>org.activiti</groupId>
+	<artifactId>activiti-bpmn-layout</artifactId>
+	<version>${activiti-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.activiti</groupId>
+	<artifactId>activiti-bpmn-converter</artifactId>
+	<version>${activiti-version}</version>
+	</dependency>
+	<dependency>
+	<groupId>org.activiti</groupId>
+	<artifactId>activiti-process-validation</artifactId>
+	<version>${activiti-version}</version>
+	</dependency>
+	<!-- activiti end -->
+    <!-- logback日志输出，下面三个足够了也不能少。 -->
+	<dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.1.3</version>
+    </dependency>
+    <!-- logback日志输出↑ -->
+    <!-- servlet env and jsp tag start -->
+    <dependency>
+    	<groupId>javax.servlet</groupId>
+    	<artifactId>javax.servlet-api</artifactId>
+    	<version>3.0.1</version>
+	</dependency>
+	<dependency>
+	    <groupId>javax.servlet.jsp.jstl</groupId>
+	    <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+	    <version>1.2.1</version>
+	</dependency>
+	<dependency>
+		<groupId>taglibs</groupId>
+		<artifactId>standard</artifactId>
+		<version>1.1.2</version>
+	</dependency>
+	<!-- servlet env and jsp tag end -->
+	<!-- shiro -->
+	<dependency>
+		<groupId>org.apache.shiro</groupId>
+		<artifactId>shiro-core</artifactId>
+		<version>${shiro-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.shiro</groupId>
+		<artifactId>shiro-web</artifactId>
+		<version>${shiro-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.shiro</groupId>
+		<artifactId>shiro-spring</artifactId>
+		<version>${shiro-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.crazycake</groupId>
+		<artifactId>shiro-redis</artifactId>
+		<version>2.4.2.1-RELEASE</version>
+	</dependency>
+	<!-- shiro -->
+	<!-- 框架依赖的common包 -->
+	<dependency>
+		<groupId>commons-fileupload</groupId>
+		<artifactId>commons-fileupload</artifactId>
+		<version>1.2.2</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-io</groupId>
+		<artifactId>commons-io</artifactId>
+		<version>2.4</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-lang</groupId>
+		<artifactId>commons-lang</artifactId>
+		<version>2.6</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-dbcp</groupId>
+		<artifactId>commons-dbcp</artifactId>
+		<version>1.4</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-discovery</groupId>
+		<artifactId>commons-discovery</artifactId>
+		<version>20040218.194635</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-logging</groupId>
+		<artifactId>commons-logging</artifactId>
+		<version>1.1.3</version>
+	</dependency>
+	<dependency>
+	    <groupId>commons-collections</groupId>
+	    <artifactId>commons-collections</artifactId>
+	    <version>3.2.1</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-collections4</artifactId>
+	    <version>4.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>commons-codec</groupId>
+	    <artifactId>commons-codec</artifactId>
+	    <version>1.10</version>
+	</dependency>
+	<dependency>
+	    <groupId>commons-httpclient</groupId>
+	    <artifactId>commons-httpclient</artifactId>
+	    <version>3.1</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-net</groupId>
+		<artifactId>commons-net</artifactId>
+		<version>20030805.205232</version>
+	</dependency>
+	<!-- properties file operate -->
+	<dependency>
+	    <groupId>commons-configuration</groupId>
+	    <artifactId>commons-configuration</artifactId>
+	    <version>1.10</version>
+	</dependency>
+	<!--  -->
+	<!-- 工具包 -->
+	<dependency>
+		<groupId>com.alibaba</groupId>
+		<artifactId>fastjson</artifactId>
+		<version>1.1.26</version>
+	</dependency>
+	<dependency>
+		<groupId>redis.clients</groupId>
+		<artifactId>jedis</artifactId>
+		<version>2.6.1</version>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.data</groupId>
+		<artifactId>spring-data-redis</artifactId>
+		<version>1.4.1.RELEASE</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.velocity</groupId>
+		<artifactId>velocity</artifactId>
+		<version>1.7</version>
+	</dependency>
+	<dependency>  
+	    <groupId>com.github.penggle</groupId>  
+	    <artifactId>kaptcha</artifactId>  
+	    <version>2.3.2</version>  
+	</dependency>
+	<!-- 使用apache的ZIP压缩，引入这个，因为在这个里面 -->
+	<dependency>
+	<groupId>org.apache.ant</groupId>
+		<artifactId>ant</artifactId>
+		<version>1.9.7</version>
+	</dependency>
+	 <dependency>
+         <groupId>javax.mail</groupId>
+         <artifactId>mail</artifactId>
+         <version>1.4.7</version>
+    </dependency>
+    <dependency>
+		<groupId>org.apache.poi</groupId>
+		<artifactId>poi</artifactId>
+		<version>3.10-beta2</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.poi</groupId>
+		<artifactId>poi-ooxml</artifactId>
+		<version>3.10-FINAL</version>
+	</dependency>
+	<!-- tomcat和jetty的websocket -->
+	<!-- tomcat -->
+	<dependency>
+        <groupId>javax.websocket</groupId>
+        <artifactId>javax.websocket-api</artifactId>
+        <version>1.1</version>
+    </dependency>
+    <dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>7.0</version>
+    </dependency>
+    <!-- 如果要用javaee-api，则需要这个validator，因为依赖bean校验 -->
+    <dependency>  
+	    <groupId>org.hibernate</groupId>  
+	    <artifactId>hibernate-validator</artifactId>  
+	    <version>5.2.4.Final</version>  
+	</dependency>  
+	<!-- tomcat -->
+	<!-- jetty -->
+    <!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-api -->
+	<dependency>
+	    <groupId>org.eclipse.jetty.websocket</groupId>
+	    <artifactId>websocket-api</artifactId>
+	    <version>9.2.8.v20150217</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.eclipse.jetty.websocket</groupId>
+	  <artifactId>websocket-client</artifactId>
+	  <version>9.2.8.v20150217</version>
+	</dependency> 
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-server -->
+	<dependency>
+	    <groupId>org.eclipse.jetty.websocket</groupId>
+	    <artifactId>websocket-server</artifactId>
+	    <version>9.2.8.v20150217</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/javax-websocket-server-impl -->
+	<dependency>
+	    <groupId>org.eclipse.jetty.websocket</groupId>
+	    <artifactId>javax-websocket-server-impl</artifactId>
+	    <version>9.2.8.v20150217</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-servlet -->
+	<dependency>
+	    <groupId>org.eclipse.jetty.websocket</groupId>
+	    <artifactId>websocket-servlet</artifactId>
+	    <version>9.2.8.v20150217</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/javax-websocket-client-impl -->
+	<dependency>
+	    <groupId>org.eclipse.jetty.websocket</groupId>
+	    <artifactId>javax-websocket-client-impl</artifactId>
+	    <version>9.2.8.v20150217</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-common -->
+	<dependency>
+	    <groupId>org.eclipse.jetty.websocket</groupId>
+	    <artifactId>websocket-common</artifactId>
+	    <version>9.2.8.v20150217</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-core -->
+	<dependency>
+	    <groupId>org.eclipse.jetty.websocket</groupId>
+	    <artifactId>websocket-core</artifactId>
+	    <version>9.0.0.M2</version>
+	</dependency>
+		
+	<!-- jetty -->
+	<!-- tomcat和jetty的websocket -->
+	<!-- https://mvnrepository.com/artifact/javassist/javassist java字节码解析-->
+	<dependency>
+	    <groupId>javassist</groupId>
+	    <artifactId>javassist</artifactId>
+	    <version>3.12.1.GA</version>
+	</dependency>
+	<!-- 工具包结束 -->
+	<!-- cxf rest -->
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-rs-extension-providers</artifactId>
+		<version>3.1.0</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.jettison</groupId>
+		<artifactId>jettison</artifactId>
+		<version>1.3.5</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>axis</groupId>
+		<artifactId>axis</artifactId>
+		<version>1.4</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.woodstox</groupId>
+		<artifactId>stax2-api</artifactId>
+		<version>3.1.1</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>javax.ws.rs</groupId>
+		<artifactId>jsr311-api</artifactId>
+		<version>1.1.1</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-transports-http</artifactId>
+		<version>${cxf.version}</version>
+	</dependency>
+	<dependency>  
+        <groupId>org.apache.cxf</groupId>  
+        <artifactId>cxf-rt-frontend-simple</artifactId>  
+        <version>${cxf.version}</version>  
+	</dependency>  
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		<version>${cxf.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		<version>${cxf.version}</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.apache.cxf</groupId>
+	    <artifactId>cxf-rt-bindings-soap</artifactId>
+	    <version>${cxf.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-mapper-asl</artifactId>
+		<version>${jackson.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-core-asl</artifactId>
+		<version>${jackson.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-jaxrs</artifactId>
+		<version>${jackson.version}</version>
+	</dependency>
+	<!-- 此包不可缺！只要引入这个包jax-rs默认第一时间使用这个驱动作为解析前台数据序列化到实体的Provider" -->
+	<dependency>
+	    <groupId>org.glassfish.jersey.media</groupId>
+	    <artifactId>jersey-media-moxy</artifactId>
+	    <version>2.2</version>
+	</dependency>		
+	
+	<dependency>
+	    <groupId>com.fasterxml.jackson.jaxrs</groupId>
+	    <artifactId>jackson-jaxrs-json-provider</artifactId>
+	    <version>2.4.0-rc3</version>
+	</dependency>
+	<!-- cxf rest end -->
+  </dependencies>
+	 <build>
+	 <!-- 工程路径结构设置 -->
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<outputDirectory>target/classes</outputDirectory>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+	 
+    <plugins>
+    	<!-- jetty自动部署插件 -->
+			<!-- scanIntervalSeconds设置的是jetty自动扫描的间隔，单位秒 发现有改动自动更新部署，默认为0，即不扫描管理热部署工程。 -->
+			<!-- contextPath配置的是部署后文件夹的名字，也即访问的地址。 例：http://localhost:8080/kyoxue -->
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId><!-- 9.0以下的groupid org.mortbay.jetty -->
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>9.2.8.v20150217</version><!--9.0以下要注意groupid是org.mortbay.jetty，而9.0以上是org.eclipse.jetty 8.1.14.v20131031 -->  
+				<configuration>
+					<webAppSourceDirectory>src/main/webapp</webAppSourceDirectory>
+					<scanIntervalSeconds>0</scanIntervalSeconds>
+					<webApp>
+						<contextPath>/ilib</contextPath>
+					</webApp>
+					<connectors>
+						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+							<port>8080</port>
+							<maxIdleTime>60000</maxIdleTime>
+						</connector>
+					</connectors>
+				</configuration>
+			 	<executions><!-- maven install完毕自动打包运行服务器 -->  
+	                <execution>  
+	                    <phase>package</phase>  
+	                    <goals>  
+	                        <goal>run</goal>
+	                    </goals>
+	                </execution>  
+            	</executions>
+			</plugin>	
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+	       <version>2.3.2</version>
+        <configuration>
+	         <source>1.7</source>
+	         <target>1.7</target>
+	         <encoding>UTF-8</encoding>
+			<failOnMissingWebXml>false</failOnMissingWebXml>
+	       </configuration>
+	     </plugin>
+	     <!-- 打包时过滤Test类 -->
+	     <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>2.8.1</version>
+			<configuration>
+				<skipTests>true</skipTests>
+			</configuration>
+		</plugin>
+		<!-- activiti的画图插件 -->
+		     <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-eclipse-plugin</artifactId>
+		        <version>2.3.2</version>  
+		        <inherited>true</inherited>
+		        <configuration>
+			         <classpathContainers>
+			           <classpathContainer>org.eclipse.jdt.USER_LIBRARY/Activiti Designer Extensions</classpathContainer>
+			         </classpathContainers>
+			       </configuration>
+		     </plugin>
+    </plugins>
+	 </build>
+</project>
